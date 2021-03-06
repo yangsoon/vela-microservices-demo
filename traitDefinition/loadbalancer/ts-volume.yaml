@@ -1,0 +1,13 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: "add bookinfo-volume to pod"
+  name: bookinfo-addvolume
+spec:
+  appliesToWorkloads:
+    - webservice
+    - worker
+    - bookinfo-server
+  extension:
+    template: |-

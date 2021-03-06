@@ -1,0 +1,10 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: WorkloadDefinition
+metadata:
+  name: microservice
+  annotations:
+    definition.oam.dev/description: "Describes a microservice combo Deployment with Service"
+spec:
+  definitionRef:
+    name: deployment.apps
+  template: |
