@@ -2,8 +2,8 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "A Probe detect the pod status by executing command"
-  name: patch-probe
+    definition.oam.dev/description: "A Probe detect the pod status by establish a socket connection"
+  name: patch-http-probe
 spec:
   appliesToWorkloads:
     - microservice

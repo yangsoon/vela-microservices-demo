@@ -1,12 +1,8 @@
-#HTTPHeader: {
-	name:  string
-	value: string
-}
 #ProbeAction: {
 	waitPodrtUpSeconds: *0 | int
+	periodSeconds:      *10 | int
+	host?:              string
 	port:               int
-	path:               string
-	httpHeaders?: [...#HTTPHeader]
 }
 parameter: {
 	readinessProbe: #ProbeAction
@@ -19,43 +15,25 @@ patch: {
 			name: context.output.containerName
 			readinessProbe: {
 				initialDelaySeconds: parameter.readinessProbe.waitPodrtUpSeconds
-				httpGet: {
-					path: parameter.readinessProbe.path
-					port: parameter.readinessProbe.port
-					if parameter.readinessProbe.httpHeaders != _|_ {
-						for httpHeader in parameter.readinessProbe.httpHeaders {
-							name:  httpHeader.name
-							value: httpHeader.value
-						}
+				periodSeconds:       parameter.readinessProbe.periodSeconds
+				tcpSocket: {
+					if parameter.readinessProbe.host != _|_ {
+						host: parameter.readinessProbe.host
 					}
+					port: parameter.readinessProbe.port
 				}
 			}
 			livenessProbe: {
 				initialDelaySeconds: parameter.livenessProbe.waitPodrtUpSeconds
-				httpGet: {
-					path: parameter.livenessProbe.path
-					port: parameter.livenessProbe.port
-					if parameter.livenessProbe.httpHeaders != _|_ {
-						for httpHeader in parameter.livenessProbe.httpHeaders {
-							name:  httpHeader.name
-							value: httpHeader.value
-						}
+				periodSeconds:       parameter.livenessProbe.periodSeconds
+				tcpSocket: {
+					if parameter.livenessProbe.host != _|_ {
+						host: parameter.livenessProbe.host
 					}
+					port: parameter.livenessProbe.port
 				}
 			}
 		}]
-	}
-}
-parameter: {
-	readinessProbe: {
-		port: 8080
-		path: "/ready_health"
-		httpHeaders: [{name: "cookie", value: "key"}]
-	}
-	livenessProbe: {
-		port: 8080
-		path: "/live_health"
-		//     httpHeaders: [{name: "cookie", value: "key"}]
 	}
 }
 context: output: {

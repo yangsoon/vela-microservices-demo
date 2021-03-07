@@ -1,5 +1,6 @@
 #ProbeAction: {
-	periodSeconds: *10 | int
+	waitPodrtUpSeconds: *0 | int
+	periodSeconds:      *10 | int
 	cmd: [...string]
 }
 parameter: {
@@ -12,11 +13,13 @@ patch: {
 		containers: [{
 			name: context.output.containerName
 			readinessProbe: {
-				periodSeconds: parameter.readinessProbe.periodSeconds
+				initialDelaySeconds: parameter.readinessProbe.waitPodrtUpSeconds
+				periodSeconds:       parameter.readinessProbe.periodSeconds
 				exec: command: parameter.readinessProbe.cmd
 			}
 			livenessProbe: {
-				periodSeconds: parameter.livenessProbe.periodSeconds
+				initialDelaySeconds: parameter.livenessProbe.waitPodrtUpSeconds
+				periodSeconds:       parameter.livenessProbe.periodSeconds
 				exec: command: parameter.livenessProbe.cmd
 			}
 		}]

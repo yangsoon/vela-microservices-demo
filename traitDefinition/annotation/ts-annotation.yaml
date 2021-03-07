@@ -3,11 +3,12 @@ kind: TraitDefinition
 metadata:
   annotations:
     definition.oam.dev/description: "add bookinfo-volume to pod"
-  name: patch-volume
+  name: patch-annotations
 spec:
   appliesToWorkloads:
     - webservice
     - worker
+    - enhanced-worker
     - microservice
   extension:
     template: |-

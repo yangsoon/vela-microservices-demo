@@ -1,0 +1,458 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: Application
+metadata:
+  name: boutique
+  namespace: default
+spec:
+  components:
+    - name: frontend
+      type: microservice
+      settings:
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/frontend:v0.2.2
+        servicePortName: http
+        servicePort: 80
+        containerPort: 8080
+        env:
+          PORT: "8080"
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+          CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+          CART_SERVICE_ADDR: "cartservice:7070"
+          RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8080"
+          SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+          CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+          AD_SERVICE_ADDR: "adservice:9555"
+      traits:
+        - name: patch-annotations
+          properties:
+            annotations:
+              sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        - name: patch-http-probe
+          properties:
+            readinessProbe:
+              waitPodrtUpSeconds: 10
+              port: 8080
+              path: "/_healthz"
+              httpHeaders:
+                Cookie: "shop_session-id=x-readiness-probe"
+            livenessProbe:
+              waitPodrtUpSeconds: 10
+              port: 8080
+              path: "/_healthz"
+              httpHeaders:
+                Cookie: "shop_session-id=x-liveness-probe"
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+        - name: loadBalancer
+          properties:
+            name: "frontend-external"
+            podLabs:
+              app: "frontend"
+            ports:
+              - name: "http"
+                port: 80
+                servicePort: 8080
+
+    - name: cartservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/cartservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 7070
+        containerPort: 7070
+        env:
+          REDIS_ADDR: "redis-cart:6379"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              waitPodStartUpSeconds: 15
+              cmd: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
+            livenessProbe:
+              waitPodrtUpSeconds: 15
+              periodSeconds: 10
+              cmd: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "200m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "128Mi"
+
+    - name: productcatalogservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 3550
+        containerPort: 3550
+        env:
+          PORT: "3550"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:3550"]
+            livenessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:3550"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: currencyservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 7000
+        containerPort: 7000
+        env:
+          PORT: "7000"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:3550"]
+            livenessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:3550"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: currencyservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 50051
+        containerPort: 50051
+        env:
+          PORT: "50051"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
+            livenessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: shippingservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 50051
+        containerPort: 50051
+        env:
+          PORT: "50051"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
+            livenessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: emailservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/emailservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 5000
+        containerPort: 8080
+        env:
+          PORT: "8080"
+          DISABLE_PROFILER: "1"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+            livenessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: checkoutservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 5050
+        containerPort: 5050
+        env:
+          PORT: "5050"
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+          CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+          CART_SERVICE_ADDR: "cartservice:7070"
+          SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+          EMAIL_SERVICE_ADDR: "emailservice:5000"
+          PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:5050"]
+            livenessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:5050"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: checkoutservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 5050
+        containerPort: 5050
+        env:
+          PORT: "5050"
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+          CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+          CART_SERVICE_ADDR: "cartservice:7070"
+          SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+          EMAIL_SERVICE_ADDR: "emailservice:5000"
+          PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:5050"]
+            livenessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:5050"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: recommendationservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 8080
+        containerPort: 8080
+        env:
+          PORT: "8080"
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+            livenessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: recommendationservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 8080
+        containerPort: 8080
+        env:
+          PORT: "8080"
+          PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+            livenessProbe:
+              periodSeconds: 5
+              cmd: ["/bin/grpc_health_probe", "-addr=:8080"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: adservice
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/adservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 9555
+        containerPort: 9555
+        env:
+          PORT: "9555"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            readinessProbe:
+              waitPodStartUpSeconds: 20
+              periodSeconds: 15
+              cmd: ["/bin/grpc_health_probe", "-addr=:9555"]
+            livenessProbe:
+              waitPodStartUpSeconds: 20
+              periodSeconds: 15
+              cmd: ["/bin/grpc_health_probe", "-addr=:9555"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "200m"
+              memory: "180Mi"
+            limits:
+              cpu: "300m"
+              memory: "300Mi"
+
+    - name: loadgenerator
+      type: enhanced-worker
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.2.2
+        env:
+          FRONTEND_ADDR: "frontend:80"
+          USERS: "10"
+      traits:
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "300m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+    - name: redis-cart
+      type: microservice
+      settings:
+        podShutdownGracePeriodSeconds: 5
+        containerName: redis
+        image: redis:alpine
+        servicePortName: redis
+        servicePort: 6379
+        containerPort: 6379
+      traits:
+        - name: patch-annotations
+          properties:
+            annotations:
+              sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        - name: patch-tcp-probe
+          properties:
+            readinessProbe:
+              periodSeconds: 5
+              port: 6379
+            livenessProbe:
+              periodSeconds: 5
+              port: 6379
+        - name: patch-volume
+          properties:
+            name: redis-data
+            path: "/data"
+            emptyDir: {}
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "125m"
+              memory: "256Mi"
+            limits:
+              cpu: "70m"
+              memory: "200Mi"

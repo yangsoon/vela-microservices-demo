@@ -3,20 +3,26 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "A Probe detect the pod status by executing command"
-  name: patch-probe
+    definition.oam.dev/description: "A Probe detect the pod status by establish a socket connection"
+  name: patch-tcp-probe
 spec:
   appliesToWorkloads:
     - microservice
   extension:
     template: |-
-      #ProbeConfig: {
-      	periodSeconds: *10 | int
-      	cmd: [...string]
+      #HTTPHeader: {
+      	name:  string
+      	value: string
+      }
+      #ProbeAction: {
+      	waitPodrtUpSeconds: *0 | int
+      	port:               int
+      	path:               string
+      	httpHeaders?: [...#HTTPHeader]
       }
       parameter: {
-      	readinessProbe: #ProbeConfig
-      	livenessProbe:  #ProbeConfig
+      	readinessProbe: #ProbeAction
+      	livenessProbe:  #ProbeAction
       }
       patch: {
       	spec: template: spec: {
@@ -24,21 +30,47 @@ spec:
       		containers: [{
       			name: context.output.containerName
       			readinessProbe: {
-      				periodSeconds: parameter.readinessProbe.periodSeconds
-      				exec: command: parameter.readinessProbe.cmd
+      				initialDelaySeconds: parameter.readinessProbe.waitPodrtUpSeconds
+      				httpGet: {
+      					path: parameter.readinessProbe.path
+      					port: parameter.readinessProbe.port
+      					if parameter.readinessProbe.httpHeaders != _|_ {
+      						for httpHeader in parameter.readinessProbe.httpHeaders {
+      							name:  httpHeader.name
+      							value: httpHeader.value
+      						}
+      					}
+      				}
       			}
       			livenessProbe: {
-      				periodSeconds: parameter.livenessProbe.periodSeconds
-      				exec: command: parameter.livenessProbe.cmd
+      				initialDelaySeconds: parameter.livenessProbe.waitPodrtUpSeconds
+      				httpGet: {
+      					path: parameter.livenessProbe.path
+      					port: parameter.livenessProbe.port
+      					if parameter.livenessProbe.httpHeaders != _|_ {
+      						for httpHeader in parameter.livenessProbe.httpHeaders {
+      							name:  httpHeader.name
+      							value: httpHeader.value
+      						}
+      					}
+      				}
       			}
       		}]
       	}
       }
       parameter: {
-      	readinessProbe: {cmd: ["ls"]}
-      	livenessProbe: {cmd: ["ls"]}
+      	readinessProbe: {
+      		port: 8080
+      		path: "/ready_health"
+      		httpHeaders: [{name: "cookie", value: "key"}]
+      	}
+      	livenessProbe: {
+      		port: 8080
+      		path: "/live_health"
+      		//     httpHeaders: [{name: "cookie", value: "key"}]
+      	}
       }
-      //context: output: {
-      // containerName: "image"
-      //}
+      context: output: {
+      	containerName: "image"
+      }
       

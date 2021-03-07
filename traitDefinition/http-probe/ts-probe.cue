@@ -1,10 +1,13 @@
-#ProbeConfig: {
-	periodSeconds: *10 | int
-	cmd: [...string]
+#ProbeAction: {
+	waitPodrtUpSeconds: *0 | int
+	periodSeconds:      *10 | int
+	port:               int
+	path:               string
+	httpHeaders?: [string]: string
 }
 parameter: {
-	readinessProbe: #ProbeConfig
-	livenessProbe:  #ProbeConfig
+	readinessProbe: #ProbeAction
+	livenessProbe:  #ProbeAction
 }
 patch: {
 	spec: template: spec: {
@@ -12,20 +15,48 @@ patch: {
 		containers: [{
 			name: context.output.containerName
 			readinessProbe: {
-				periodSeconds: parameter.readinessProbe.periodSeconds
-				exec: command: parameter.readinessProbe.cmd
+				initialDelaySeconds: parameter.readinessProbe.waitPodrtUpSeconds
+				periodSeconds:       parameter.readinessProbe.periodSeconds
+				httpGet: {
+					path: parameter.readinessProbe.path
+					port: parameter.readinessProbe.port
+					if parameter.readinessProbe.httpHeaders != _|_ {
+						for k, v in parameter.readinessProbe.httpHeaders {
+							name:  k
+							value: v
+						}
+					}
+				}
 			}
 			livenessProbe: {
-				periodSeconds: parameter.livenessProbe.periodSeconds
-				exec: command: parameter.livenessProbe.cmd
+				initialDelaySeconds: parameter.livenessProbe.waitPodrtUpSeconds
+				periodSeconds:       parameter.livenessProbe.periodSeconds
+				httpGet: {
+					path: parameter.livenessProbe.path
+					port: parameter.livenessProbe.port
+					if parameter.livenessProbe.httpHeaders != _|_ {
+						for k, v in parameter.livenessProbe.httpHeaders {
+							name:  k
+							value: v
+						}
+					}
+				}
 			}
 		}]
 	}
 }
 parameter: {
-	readinessProbe: {cmd: ["ls"]}
-	livenessProbe: {cmd: ["ls"]}
+	readinessProbe: {
+		port: 8080
+		path: "/ready_health"
+		httpHeaders: [{name: "cookie", value: "key"}]
+	}
+	livenessProbe: {
+		port: 8080
+		path: "/live_health"
+		//     httpHeaders: [{name: "cookie", value: "key"}]
+	}
 }
-//context: output: {
-// containerName: "image"
-//}
+context: output: {
+	containerName: "image"
+}

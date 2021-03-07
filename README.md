@@ -21,3 +21,8 @@ use vela to deploy microservices
 ## TODO
 - [ ] update def description
 - [ ] add usage for parameter
+- [X] add annoti
+- [X] cmd probe add delay-param
+- [X] tcp probe update
+- [ ] diff container probe with pod probe
+- [X] protocol to portName 

@@ -1,7 +1,7 @@
 parameter: {
 	image:                         string
 	containerName:                 string
-	servicePort:                   int
+	servicePortName:               int
 	containerPort:                 int
 	podShutdownGracePeriodSeconds: *30 | int
 	env: [string]: string
@@ -60,7 +60,7 @@ outputs: service: {
 			"app": context.name
 		}
 		ports: [{
-			name:       parameter.serviceProtocol
+			name:       parameter.servicePortName
 			port:       parameter.servicePort
 			targetPort: parameter.containerPort
 		}]
@@ -74,5 +74,5 @@ parameter: {
 	servicePort:   8080
 	containerPort: 8080
 	env: {"DISABLE_PROFILER": "1"}
-	serviceProtocol: "grpc"
+	servicePortName: "grpc"
 }
