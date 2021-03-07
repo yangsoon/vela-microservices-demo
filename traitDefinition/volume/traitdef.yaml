@@ -4,26 +4,14 @@ kind: TraitDefinition
 metadata:
   annotations:
     definition.oam.dev/description: "add bookinfo-volume to pod"
-  name: microservice
+  name: patch-volume
 spec:
   appliesToWorkloads:
     - webservice
     - worker
-    - bookinfo-server
+    - microservice
   extension:
     template: |-
-      #EmptyDirConfig: {
-      	medium?:    string
-      	sizeLimit?: string
-      }
-      #VolumeMount: {
-      	name:      string
-      	path:      string
-      	emptyDir?: #EmptyDirConfig
-      }
-      parameter: {
-      	volumeMounts: [...#VolumeMount]
-      }
       patch: {
       	spec: template: spec: {
       		// +patchKey=name
@@ -49,21 +37,34 @@ spec:
       		]
       	}
       }
+      #EmptyDirConfig: {
+      	medium?:    string
+      	sizeLimit?: string
+      }
+      #VolumeMount: {
+      	name:      string
+      	path:      string
+      	emptyDir?: #EmptyDirConfig
+      }
+      
       parameter: {
-      	volumeMounts: [{
-      		name: "readis"
-      		path: "/data"
-      		emptyDir: {}
-      	}, {
-      		name: "test"
-      		path: "/data"
-      		emptyDir: {}
-      	}, {
-      		name: "mysql"
-      		path: "/data"
-      	}]
+      	volumeMounts: [...#VolumeMount]
       }
-      context: output: {
-      	containername: "image"
-      }
+      //parameter: {
+      // volumeMounts: [{
+      //  name: "readis"
+      //  path: "/data"
+      //  emptyDir: {}
+      // }, {
+      //  name: "test"
+      //  path: "/data"
+      //  emptyDir: {}
+      // }, {
+      //  name: "mysql"
+      //  path: "/data"
+      // }]
+      //}
+      //context: output: {
+      // containername: "image"
+      //}
       

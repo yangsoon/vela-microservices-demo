@@ -26,3 +26,4 @@ use vela to deploy microservices
 - [X] tcp probe update
 - [ ] diff container probe with pod probe
 - [X] protocol to portName 
+- [X] resource config meaning

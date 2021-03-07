@@ -2,7 +2,7 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "add bookinfo-volume to pod"
+    definition.oam.dev/description: "add annotations to your pod"
   name: patch-annotations
 spec:
   appliesToWorkloads:

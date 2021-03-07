@@ -1,13 +1,3 @@
-#ProbeAction: {
-	waitPodrtUpSeconds: *0 | int
-	periodSeconds:      *10 | int
-	host?:              string
-	port:               int
-}
-parameter: {
-	readinessProbe: #ProbeAction
-	livenessProbe:  #ProbeAction
-}
 patch: {
 	spec: template: spec: {
 		// +patchKey=name
@@ -35,6 +25,19 @@ patch: {
 			}
 		}]
 	}
+}
+#ProbeAction: {
+	// +usage=Number of seconds after the container has started before liveness probes are initiated
+	waitPodrtUpSeconds: *0 | int
+
+	// +usage=How often (in seconds) to perform the probe
+	periodSeconds: *10 | int
+	host?:         string
+	port:          int
+}
+parameter: {
+	readinessProbe: #ProbeAction
+	livenessProbe:  #ProbeAction
 }
 context: output: {
 	containerName: "image"

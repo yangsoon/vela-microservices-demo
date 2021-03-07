@@ -1,12 +1,3 @@
-#ProbeAction: {
-	waitPodrtUpSeconds: *0 | int
-	periodSeconds:      *10 | int
-	cmd: [...string]
-}
-parameter: {
-	readinessProbe: #ProbeAction
-	livenessProbe:  #ProbeAction
-}
 patch: {
 	spec: template: spec: {
 		// +patchKey=name
@@ -25,10 +16,25 @@ patch: {
 		}]
 	}
 }
-parameter: {
-	readinessProbe: {cmd: ["ls"]}
-	livenessProbe: {cmd: ["ls"]}
+#ProbeAction: {
+	// +usage=Number of seconds after the container has started before liveness probes are initiated
+	waitPodrtUpSeconds: *0 | int
+
+	// +usage=How often (in seconds) to perform the probe
+	periodSeconds: *10 | int
+
+	// +usage=Command is the command line to execute inside the container
+	cmd: [...string]
 }
+
+parameter: {
+	readinessProbe: #ProbeAction
+	livenessProbe:  #ProbeAction
+}
+//parameter: {
+// readinessProbe: {cmd: ["ls"]}
+// livenessProbe: {cmd: ["ls"]}
+//}
 //context: output: {
 // containerName: "image"
 //}

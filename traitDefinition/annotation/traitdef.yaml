@@ -3,67 +3,25 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "add bookinfo-volume to pod"
-  name: microservice
+    definition.oam.dev/description: "add annotations to your pod"
+  name: patch-annotations
 spec:
   appliesToWorkloads:
     - webservice
     - worker
-    - bookinfo-server
+    - enhanced-worker
+    - microservice
   extension:
     template: |-
-      #EmptyDirConfig: {
-      	medium?:    string
-      	sizeLimit?: string
-      }
-      #VolumeMount: {
-      	name:      string
-      	path:      string
-      	emptyDir?: #EmptyDirConfig
-      }
       parameter: {
-      	volumeMounts: [...#VolumeMount]
+      	annotations: [string]: string
       }
       patch: {
-      	spec: template: spec: {
-      		// +patchKey=name
-      		containers: [{
-      			name: context.output.containername
-      			// +patchKey=name
-      			volumeMounts: [
-      				for volumeMount in parameter.volumeMounts {
-      					name:      volumeMount.name
-      					mountPath: volumeMount.path
-      				},
-      			]
-      		}]
-      
-      		// +patchKey=name
-      		volumes: [
-      			for volumeMount in parameter.volumeMounts {
-      				name: volumeMount.name
-      				if volumeMount.emptyDir != _|_ {
-      					emptyDir: volumeMount.emptyDir
-      				}
-      			},
-      		]
+      	spec: template: annotations: {
+      		for k, v in parameter.annotations {
+      			k: v
+      		}
       	}
       }
-      parameter: {
-      	volumeMounts: [{
-      		name: "readis"
-      		path: "/data"
-      		emptyDir: {}
-      	}, {
-      		name: "test"
-      		path: "/data"
-      		emptyDir: {}
-      	}, {
-      		name: "mysql"
-      		path: "/data"
-      	}]
-      }
-      context: output: {
-      	containername: "image"
-      }
+      //parameter: annotations: {"a": "b"}
       

@@ -1,15 +1,3 @@
-#EmptyDirConfig: {
-	medium?:    string
-	sizeLimit?: string
-}
-#VolumeMount: {
-	name:      string
-	path:      string
-	emptyDir?: #EmptyDirConfig
-}
-parameter: {
-	volumeMounts: [...#VolumeMount]
-}
 patch: {
 	spec: template: spec: {
 		// +patchKey=name
@@ -35,20 +23,33 @@ patch: {
 		]
 	}
 }
+#EmptyDirConfig: {
+	medium?:    string
+	sizeLimit?: string
+}
+#VolumeMount: {
+	name:      string
+	path:      string
+	emptyDir?: #EmptyDirConfig
+}
+
 parameter: {
-	volumeMounts: [{
-		name: "readis"
-		path: "/data"
-		emptyDir: {}
-	}, {
-		name: "test"
-		path: "/data"
-		emptyDir: {}
-	}, {
-		name: "mysql"
-		path: "/data"
-	}]
+	volumeMounts: [...#VolumeMount]
 }
-context: output: {
-	containername: "image"
-}
+//parameter: {
+// volumeMounts: [{
+//  name: "readis"
+//  path: "/data"
+//  emptyDir: {}
+// }, {
+//  name: "test"
+//  path: "/data"
+//  emptyDir: {}
+// }, {
+//  name: "mysql"
+//  path: "/data"
+// }]
+//}
+//context: output: {
+// containername: "image"
+//}

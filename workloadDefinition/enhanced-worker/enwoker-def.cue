@@ -1,8 +1,7 @@
 parameter: {
-	image:         string
-	containerName: string
-	replicas:      *1 | int
-	annotations: [string]: string
+	image:                         string
+	containerName:                 string
+	replicas:                      *1 | int
 	podShutdownGracePeriodSeconds: *30 | int
 	env: [string]: string
 }
@@ -22,11 +21,6 @@ output: {
 			metadata: {
 				labels: {
 					"app": context.name
-				}
-				annotations: {
-					for k, v in parameter.annotations {
-						k: v
-					}
 				}
 			}
 			spec: {
@@ -50,12 +44,11 @@ output: {
 	}
 }
 
-context: {
-	name: "email"
-}
-parameter: {
-	image:         "image"
-	containerName: "string"
-	annotations: {"sidecar.istio.io/rewriteAppHTTPProbers": "true"}
-	env: {"DISABLE_PROFILER": "1"}
-}
+//context: {
+// name: "email"
+//}
+//parameter: {
+// image:         "image"
+// containerName: "string"
+// env: {"DISABLE_PROFILER": "1"}
+//}

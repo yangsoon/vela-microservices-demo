@@ -1,12 +1,3 @@
-parameter: {
-	image:                         string
-	containerName:                 string
-	servicePortName:               int
-	containerPort:                 int
-	podShutdownGracePeriodSeconds: *30 | int
-	env: [string]: string
-	serviceProtocol: string
-}
 output: {
 	// Deployment
 	apiVersion: "apps/v1"
@@ -24,7 +15,7 @@ output: {
 			}
 			spec: {
 				serviceAccountName:            "default"
-				terminationGracePeriodSeconds: parameter.podShutdownGracePeriodSeconds
+				terminationGracePeriodSeconds: parameter.podShutdownGraceSeconds
 				containers: [{
 					name:  parameter.containerName
 					image: parameter.image
@@ -66,13 +57,23 @@ outputs: service: {
 		}]
 	}
 }
-context: {
-	name: "email"
-}
 parameter: {
-	image:         "image"
-	servicePort:   8080
-	containerPort: 8080
-	env: {"DISABLE_PROFILER": "1"}
-	servicePortName: "grpc"
+	image:           string
+	containerName:   string
+	servicePortName: int
+	containerPort:   int
+	// +usage=Optional duration in seconds the pod needs to terminate gracefully
+	podShutdownGraceSeconds: *30 | int
+	env: [string]: string
+	servicePortName: string
 }
+//context: {
+// name: "email"
+//}
+//parameter: {
+// image:         "image"
+// servicePort:   8080
+// containerPort: 8080
+// env: {"DISABLE_PROFILER": "1"}
+// servicePortName: "grpc"
+//}

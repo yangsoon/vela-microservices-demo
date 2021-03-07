@@ -12,7 +12,6 @@ patch: {
 		// +patchKey=name
 		containers: [{
 			name: parameter.containerName
-			// TODO resource的默认设定 
 			resources: {
 				if parameter.requests != _|_ {
 					requests: parameter.requests
@@ -24,8 +23,8 @@ patch: {
 		}]
 	}
 }
-parameter: {
-	containerName: "app"
-	//            requests: {cpu: "1", memory: "2"}
-	limits: {cpu: "1", memory: "2"}
-}
+//parameter: {
+// containerName: "app"
+// //            requests: {cpu: "1", memory: "2"}
+// limits: {cpu: "1", memory: "2"}
+//}

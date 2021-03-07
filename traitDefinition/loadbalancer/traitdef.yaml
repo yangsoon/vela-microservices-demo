@@ -4,22 +4,12 @@ kind: TraitDefinition
 metadata:
   annotations:
     definition.oam.dev/description: "Create a LoadBalancer for the specified service"
-  name: loadBalancer
+  name: LoadBalancer
 spec:
   appliesToWorkloads:
     - microservice
   extension:
     template: |-
-      #PortConfig: {
-      	name?:       string
-      	port:        int
-      	servicePort: int
-      }
-      parameter: {
-      	name: string
-      	podLabs: [string]: string
-      	ports: [...#PortConfig]
-      }
       outputs: loadbalancer: {
       	apiVersion: "v1"
       	kind:       "Service"
@@ -44,9 +34,20 @@ spec:
       		]
       	}
       }
-      parameter: {
-      	name: "lb"
-      	podLabs: {"app": "pod"}
-      	ports: [{name: "http", port: 80, servicePort: 8080}]
+      #PortConfig: {
+      	name?:       string
+      	port:        int
+      	servicePort: int
       }
+      
+      parameter: {
+      	name: string
+      	podLabs: [string]: string
+      	ports: [...#PortConfig]
+      }
+      //parameter: {
+      // name: "lb"
+      // podLabs: {"app": "pod"}
+      // ports: [{name: "http", port: 80, servicePort: 8080}]
+      //}
       

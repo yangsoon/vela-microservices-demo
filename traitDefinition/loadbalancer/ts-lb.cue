@@ -1,13 +1,3 @@
-#PortConfig: {
-	name?:       string
-	port:        int
-	servicePort: int
-}
-parameter: {
-	name: string
-	podLabs: [string]: string
-	ports: [...#PortConfig]
-}
 outputs: loadbalancer: {
 	apiVersion: "v1"
 	kind:       "Service"
@@ -32,8 +22,19 @@ outputs: loadbalancer: {
 		]
 	}
 }
-parameter: {
-	name: "lb"
-	podLabs: {"app": "pod"}
-	ports: [{name: "http", port: 80, servicePort: 8080}]
+#PortConfig: {
+	name?:       string
+	port:        int
+	servicePort: int
 }
+
+parameter: {
+	name: string
+	podLabs: [string]: string
+	ports: [...#PortConfig]
+}
+//parameter: {
+// name: "lb"
+// podLabs: {"app": "pod"}
+// ports: [{name: "http", port: 80, servicePort: 8080}]
+//}

@@ -8,3 +8,4 @@ patch: {
 		}
 	}
 }
+//parameter: annotations: {"a": "b"}

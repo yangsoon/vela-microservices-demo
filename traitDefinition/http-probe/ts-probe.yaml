@@ -2,7 +2,7 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "A Probe detect the pod status by establish a socket connection"
+    definition.oam.dev/description: "A Probe sends an HTTP request to the specified path and port to perform the check."
   name: patch-http-probe
 spec:
   appliesToWorkloads:
