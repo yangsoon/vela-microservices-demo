@@ -2,12 +2,12 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "add bookinfo-volume to pod"
-  name: bookinfo-addvolume
+    definition.oam.dev/description: "patch resource config to container"
+  name: patch-container-resource
 spec:
   appliesToWorkloads:
     - webservice
     - worker
-    - bookinfo-server
+    - microservice
   extension:
     template: |-

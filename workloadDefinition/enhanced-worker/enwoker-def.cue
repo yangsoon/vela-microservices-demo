@@ -1,11 +1,10 @@
 parameter: {
-	image:                         string
-	containerName:                 string
-	servicePort:                   int
-	containerPort:                 int
+	image:         string
+	containerName: string
+	replicas:      *1 | int
+	annotations: [string]: string
 	podShutdownGracePeriodSeconds: *30 | int
 	env: [string]: string
-	serviceProtocol: string
 }
 output: {
 	// Deployment
@@ -18,19 +17,25 @@ output: {
 		selector: matchLabels: {
 			"app": context.name
 		}
+		replicas: parameter.replicas
 		template: {
-			metadata: labels: {
-				"app": context.name
+			metadata: {
+				labels: {
+					"app": context.name
+				}
+				annotations: {
+					for k, v in parameter.annotations {
+						k: v
+					}
+				}
 			}
 			spec: {
 				serviceAccountName:            "default"
 				terminationGracePeriodSeconds: parameter.podShutdownGracePeriodSeconds
+				restartPolicy:                 "Alwats"
 				containers: [{
 					name:  parameter.containerName
 					image: parameter.image
-					ports: [{
-						containerPort: parameter.containerPort
-					}]
 					if parameter.env != _|_ {
 						env: [
 							for k, v in parameter.env {
@@ -44,35 +49,13 @@ output: {
 		}
 	}
 }
-// Service
-outputs: service: {
-	apiVersion: "v1"
-	kind:       "Service"
-	metadata: {
-		name: context.name
-		labels: {
-			"app": context.name
-		}
-	}
-	spec: {
-		type: "ClusterIP"
-		selector: {
-			"app": context.name
-		}
-		ports: [{
-			name:       parameter.serviceProtocol
-			port:       parameter.servicePort
-			targetPort: parameter.containerPort
-		}]
-	}
-}
+
 context: {
 	name: "email"
 }
 parameter: {
 	image:         "image"
-	servicePort:   8080
-	containerPort: 8080
+	containerName: "string"
+	annotations: {"sidecar.istio.io/rewriteAppHTTPProbers": "true"}
 	env: {"DISABLE_PROFILER": "1"}
-	serviceProtocol: "grpc"
 }

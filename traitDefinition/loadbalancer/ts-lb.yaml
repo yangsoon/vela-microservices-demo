@@ -1,0 +1,11 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: "Create a LoadBalancer for the specified service"
+  name: LoadBalancer
+spec:
+  appliesToWorkloads:
+    - microservice
+  extension:
+    template: |-

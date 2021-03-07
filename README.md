@@ -17,3 +17,7 @@ use vela to deploy microservices
 | [loadgenerator](./src/loadgenerator)                 | worker        | Continuously sends requests imitating realistic user shopping flows to the frontend.                                              |
 | frontend-external as trait for frontend              | loadbalancer  |                                                                                                                                   |
 | redis-cart                                           | ms+ts(volum)  |                                                                                                                                   |
+
+## TODO
+- [ ] update def description
+- [ ] add usage for parameter

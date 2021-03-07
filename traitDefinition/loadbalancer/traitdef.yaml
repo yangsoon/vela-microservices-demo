@@ -3,54 +3,50 @@ apiVersion: core.oam.dev/v1alpha2
 kind: TraitDefinition
 metadata:
   annotations:
-    definition.oam.dev/description: "add bookinfo-volume to pod"
-  name: bookinfo-addvolume
+    definition.oam.dev/description: "Create a LoadBalancer for the specified service"
+  name: LoadBalancer
 spec:
   appliesToWorkloads:
-    - webservice
-    - worker
-    - bookinfo-server
+    - microservice
   extension:
     template: |-
-      #Map: [string]: string
-      parameter: {
-      	env: [string]:          string
-      	volumeMounts: [string]: string
-      	volumes: [...#Map]
+      #PortConfig: {
+      	name?:       string
+      	port:        int
+      	servicePort: int
       }
-      patch: {
-      	spec: template: spec: {
-      		// +patchKey=name
-      		containers: [{
-      			name: context.name
-      			// +patchKey=name
-      			env: [
-      				for k, v in parameter.env {
-      					name:  k
-      					value: v
-      				},
-      			]
-      			volumeMounts: [
-      				for k, v in parameter.volumeMounts {
-      					name:      k
-      					mountPath: v
-      				},
-      			]
-      		}]
-      
-      		// +patchKey=name
-      		volumes: [
-      			for volume in parameter.volumes {
-      				for k, v in volume {
-      					if k != "emptyDir" {
-      						"\(k)": v
-      					}
-      					if k == "emptyDir" {
-      						emptyDir: {}
-      					}
+      parameter: {
+      	name: string
+      	podLabs: [string]: string
+      	ports: [...#PortConfig]
+      }
+      outputs: loadbalancer: {
+      	apiVersion: "v1"
+      	kind:       "Service"
+      	metadata: {
+      		name: parameter.name
+      	}
+      	spec: {
+      		type: "LoadBalancer"
+      		selector: {
+      			for k, v in parameter.podLabs {
+      				k: v
+      			}
+      		}
+      		portConfigs: [
+      			for config in parameter.ports {
+      				if config.name != _|_ {
+      					name: config.name
       				}
+      				port:       config.port
+      				targetPort: config.servicePort
       			},
       		]
       	}
+      }
+      parameter: {
+      	name: "lb"
+      	podLabs: {"app": "pod"}
+      	ports: [{name: "http", port: 80, servicePort: 8080}]
       }
       

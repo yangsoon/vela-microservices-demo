@@ -1,0 +1,10 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: WorkloadDefinition
+metadata:
+  name: enhanced-worker
+  annotations:
+    definition.oam.dev/description: "Describes long-running, scalable, containerized services that running at backend."
+spec:
+  definitionRef:
+    name: deployment.apps
+  template: |

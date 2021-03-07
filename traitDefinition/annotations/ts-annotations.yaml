@@ -1,0 +1,13 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: "patch annotations"
+  name: patch-annotations
+spec:
+  appliesToWorkloads:
+    - webservice
+    - worker
+    - microservice
+  extension:
+    template: |-
