@@ -3,7 +3,7 @@ kind: TraitDefinition
 metadata:
   annotations:
     definition.oam.dev/description: "Create a LoadBalancer for the specified service"
-  name: LoadBalancer
+  name: load-balancer
 spec:
   appliesToWorkloads:
     - microservice
