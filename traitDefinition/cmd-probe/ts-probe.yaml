@@ -3,7 +3,7 @@ kind: TraitDefinition
 metadata:
   annotations:
     definition.oam.dev/description: "A Probe detect the pod status by executing command"
-  name: patch-probe
+  name: patch-cmd-probe
 spec:
   appliesToWorkloads:
     - microservice

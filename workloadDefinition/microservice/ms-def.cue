@@ -58,10 +58,10 @@ outputs: service: {
 	}
 }
 parameter: {
-	image:           string
-	containerName:   string
-	servicePortName: int
-	containerPort:   int
+	image:         string
+	containerName: string
+	servicePort:   int
+	containerPort: int
 	// +usage=Optional duration in seconds the pod needs to terminate gracefully
 	podShutdownGraceSeconds: *30 | int
 	env: [string]: string

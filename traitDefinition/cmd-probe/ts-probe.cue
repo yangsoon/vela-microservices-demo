@@ -2,14 +2,14 @@ patch: {
 	spec: template: spec: {
 		// +patchKey=name
 		containers: [{
-			name: context.output.containerName
+			name: parameter.containerName
 			readinessProbe: {
-				initialDelaySeconds: parameter.readinessProbe.waitPodrtUpSeconds
+				initialDelaySeconds: parameter.readinessProbe.waitPodStartUpSeconds
 				periodSeconds:       parameter.readinessProbe.periodSeconds
 				exec: command: parameter.readinessProbe.cmd
 			}
 			livenessProbe: {
-				initialDelaySeconds: parameter.livenessProbe.waitPodrtUpSeconds
+				initialDelaySeconds: parameter.livenessProbe.waitPodStartUpSeconds
 				periodSeconds:       parameter.livenessProbe.periodSeconds
 				exec: command: parameter.livenessProbe.cmd
 			}
@@ -18,7 +18,7 @@ patch: {
 }
 #ProbeAction: {
 	// +usage=Number of seconds after the container has started before liveness probes are initiated
-	waitPodrtUpSeconds: *0 | int
+	waitPodStartUpSeconds: *0 | int
 
 	// +usage=How often (in seconds) to perform the probe
 	periodSeconds: *10 | int
@@ -28,6 +28,7 @@ patch: {
 }
 
 parameter: {
+	containerName:  string
 	readinessProbe: #ProbeAction
 	livenessProbe:  #ProbeAction
 }

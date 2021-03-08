@@ -8,10 +8,10 @@ outputs: loadbalancer: {
 		type: "LoadBalancer"
 		selector: {
 			for k, v in parameter.podLabs {
-				k: v
+				"\(k)": v
 			}
 		}
-		portConfigs: [
+		ports: [
 			for config in parameter.ports {
 				if config.name != _|_ {
 					name: config.name

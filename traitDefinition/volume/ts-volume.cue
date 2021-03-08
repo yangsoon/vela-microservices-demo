@@ -2,7 +2,7 @@ patch: {
 	spec: template: spec: {
 		// +patchKey=name
 		containers: [{
-			name: context.output.containername
+			name: parameter.containerName
 			// +patchKey=name
 			volumeMounts: [
 				for volumeMount in parameter.volumeMounts {
@@ -34,6 +34,7 @@ patch: {
 }
 
 parameter: {
+	containerName: string
 	volumeMounts: [...#VolumeMount]
 }
 //parameter: {
