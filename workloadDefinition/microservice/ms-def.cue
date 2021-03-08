@@ -11,7 +11,8 @@ output: {
 		}
 		template: {
 			metadata: labels: {
-				"app": context.name
+				"app":     context.name
+				"version": parameter.version
 			}
 			spec: {
 				serviceAccountName:            "default"
@@ -58,6 +59,7 @@ outputs: service: {
 	}
 }
 parameter: {
+	version:       *"v1" | string
 	image:         string
 	containerName: string
 	servicePort:   int
