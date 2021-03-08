@@ -26,7 +26,7 @@ output: {
 			spec: {
 				serviceAccountName:            "default"
 				terminationGracePeriodSeconds: parameter.podShutdownGracePeriodSeconds
-				restartPolicy:                 "Alwats"
+				restartPolicy:                 "Always"
 				containers: [{
 					name:  parameter.containerName
 					image: parameter.image

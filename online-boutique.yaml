@@ -106,8 +106,8 @@ spec:
           PORT: "3550"
       traits:
         - name: patch-cmd-probe
-          containerName: server
           properties:
+            containerName: server
             readinessProbe:
               cmd: ["/bin/grpc_health_probe", "-addr=:3550"]
             livenessProbe:
@@ -141,6 +141,35 @@ spec:
               cmd: ["/bin/grpc_health_probe", "-addr=:7000"]
             livenessProbe:
               cmd: ["/bin/grpc_health_probe", "-addr=:7000"]
+        - name: patch-container-resource
+          properties:
+            containerName: server
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+    - name: paymentservice
+      type: microservice
+      settings:
+        podShutdownGraceSeconds: 5
+        containerName: server
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.2
+        servicePortName: grpc
+        servicePort: 50051
+        containerPort: 50051
+        env:
+          PORT: "50051"
+      traits:
+        - name: patch-cmd-probe
+          properties:
+            containerName: server
+            readinessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
+            livenessProbe:
+              cmd: ["/bin/grpc_health_probe", "-addr=:50051"]
         - name: patch-container-resource
           properties:
             containerName: server
@@ -366,10 +395,10 @@ spec:
               emptyDir: {}
         - name: patch-container-resource
           properties:
-            containerName: server
+            containerName: redis
             requests:
-              cpu: "125m"
-              memory: "256Mi"
-            limits:
               cpu: "70m"
               memory: "200Mi"
+            limits:
+              cpu: "125m"
+              memory: "256Mi"

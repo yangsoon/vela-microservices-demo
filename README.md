@@ -19,11 +19,13 @@ use vela to deploy microservices
 | redis-cart                                           | ms+ts(volum)  |                                                                                                                                   |
 
 ## TODO
-- [ ] update def description
-- [ ] add usage for parameter
+- [X] update def description
+- [X] add usage for parameter
 - [X] add annoti
 - [X] cmd probe add delay-param
 - [X] tcp probe update
 - [ ] diff container probe with pod probe
 - [X] protocol to portName 
 - [X] resource config meaning
+- [ ] recommendationservice restart too many times
+- [ ] loadbalancer & service

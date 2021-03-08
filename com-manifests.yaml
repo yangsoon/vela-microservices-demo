@@ -110,6 +110,27 @@
             selector:
               app: currencyservice
             type: ClusterIP
+    - componentName: paymentservice
+      traits:
+      - trait:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            labels:
+              app: paymentservice
+              app.oam.dev/component: paymentservice
+              app.oam.dev/name: boutique
+              trait.oam.dev/resource: service
+              trait.oam.dev/type: AuxiliaryWorkload
+            name: paymentservice
+          spec:
+            ports:
+            - name: grpc
+              port: 50051
+              targetPort: 50051
+            selector:
+              app: paymentservice
+            type: ClusterIP
     - componentName: shippingservice
       traits:
       - trait:
@@ -508,6 +529,66 @@
     creationTimestamp: null
     labels:
       app.oam.dev/name: boutique
+    name: paymentservice
+    namespace: default
+  spec:
+    workload:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        labels:
+          app.oam.dev/component: paymentservice
+          app.oam.dev/name: boutique
+          workload.oam.dev/type: microservice
+        name: paymentservice
+      spec:
+        selector:
+          matchLabels:
+            app: paymentservice
+        template:
+          metadata:
+            labels:
+              app: paymentservice
+          spec:
+            containers:
+            - env:
+              - name: PORT
+                value: "50051"
+              image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.2
+              livenessProbe:
+                exec:
+                  command:
+                  - /bin/grpc_health_probe
+                  - -addr=:50051
+                initialDelaySeconds: 0
+                periodSeconds: 10
+              name: server
+              ports:
+              - containerPort: 50051
+              readinessProbe:
+                exec:
+                  command:
+                  - /bin/grpc_health_probe
+                  - -addr=:50051
+                initialDelaySeconds: 0
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 100m
+                  memory: 64Mi
+            serviceAccountName: default
+            terminationGracePeriodSeconds: 5
+  status:
+    observedGeneration: 0
+- apiVersion: core.oam.dev/v1alpha2
+  kind: Component
+  metadata:
+    creationTimestamp: null
+    labels:
+      app.oam.dev/name: boutique
     name: shippingservice
     namespace: default
   spec:
@@ -861,7 +942,7 @@
                 requests:
                   cpu: 300m
                   memory: 256Mi
-            restartPolicy: Alwats
+            restartPolicy: Always
             serviceAccountName: default
             terminationGracePeriodSeconds: 30
   status:
@@ -911,17 +992,16 @@
                 periodSeconds: 5
                 tcpSocket:
                   port: 6379
+              resources:
+                limits:
+                  cpu: 125m
+                  memory: 256Mi
+                requests:
+                  cpu: 70m
+                  memory: 200Mi
               volumeMounts:
               - mountPath: /data
                 name: redis-data
-            - name: server
-              resources:
-                limits:
-                  cpu: 70m
-                  memory: 200Mi
-                requests:
-                  cpu: 125m
-                  memory: 256Mi
             serviceAccountName: default
             terminationGracePeriodSeconds: 5
             volumes:
